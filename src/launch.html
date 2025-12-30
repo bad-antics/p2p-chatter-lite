@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2P Chatter Lite - Version Selector</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    .version-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .version-btn {
+      padding: 16px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: block;
+      color: #333;
+    }
+    
+    .version-btn:hover {
+      border-color: #0066cc;
+      background: #f0f7ff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+    }
+    
+    .btn-icon {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 8px;
+    }
+    
+    .btn-title {
+      font-weight: 700;
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    .btn-desc {
+      font-size: 12px;
+      color: #999;
+    }
+    
+    .divider {
+      margin: 30px 0;
+      border-top: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>P2P Chatter Lite 🔐</h1>
+    <p class="subtitle">Choose your interface version</p>
+    
+    <div class="version-buttons">
+      <a href="index.html" class="version-btn">
+        <span class="btn-icon">🖥️</span>
+        <span class="btn-title">Desktop Version</span>
+        <span class="btn-desc">Full-featured interface</span>
+      </a>
+      
+      <a href="index-mobile.html" class="version-btn">
+        <span class="btn-icon">📱</span>
+        <span class="btn-title">Mobile Version</span>
+        <span class="btn-desc">Samsung Galaxy S25 style</span>
+      </a>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <p style="font-size: 12px; color: #999;">
+      Both versions include all features:<br>
+      P2P messaging • File transfer • Security settings • Multiple themes
+    </p>
+  </div>
+</body>
+</html>

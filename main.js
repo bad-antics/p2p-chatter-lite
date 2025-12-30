@@ -99,11 +99,15 @@ function createWindow() {
     }
   });
 
+  // Load version selector or default to desktop
+  const launchPath = path.join(__dirname, 'src/launch.html');
   const indexPath = path.join(__dirname, 'src/index.html');
-  console.log('Loading index from:', indexPath);
-  console.log('File exists:', fs.existsSync(indexPath));
+  const pathToLoad = fs.existsSync(launchPath) ? launchPath : indexPath;
   
-  mainWindow.loadFile(indexPath).catch(err => {
+  console.log('Loading from:', pathToLoad);
+  console.log('File exists:', fs.existsSync(pathToLoad));
+  
+  mainWindow.loadFile(pathToLoad).catch(err => {
     console.error('Failed to load file:', err);
   });
 

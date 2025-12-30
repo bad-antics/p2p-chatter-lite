@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2P Chatter Lite - Mobile</title>
+  <link rel="stylesheet" href="styles-mobile.css">
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- Phone Bezel (Frame) -->
+    <div class="phone-bezel">
+      <!-- Status Bar (Top) -->
+      <div class="status-bar">
+        <div class="status-left">
+          <span class="signal">●●●●●</span>
+          <span class="wifi">📶</span>
+        </div>
+        <div class="status-center">
+          <span class="time" id="statusTime">9:41</span>
+        </div>
+        <div class="status-right">
+          <span class="battery">🔋</span>
+        </div>
+      </div>
+
+      <!-- Notch -->
+      <div class="notch"></div>
+
+      <!-- Phone Screen -->
+      <div class="phone-screen">
+        <!-- App Header -->
+        <header class="mobile-header">
+          <div class="header-title">P2P Chatter 🔐</div>
+          <div class="header-subtitle">v1.1.0</div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="mobile-content">
+          <!-- Your Info Section -->
+          <section class="info-section">
+            <div class="username-card">
+              <div class="username-label">Your ID</div>
+              <div class="username-value" id="usernameDisplay">Loading...</div>
+              <div class="username-action">
+                <button class="btn-small" id="refreshUsernameBtn">🔄 Refresh</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Connection Section -->
+          <section class="connection-section">
+            <div class="section-title">Connect</div>
+            <input type="text" id="peerUsernameInput" class="mobile-input" placeholder="Peer username" maxlength="50">
+            <button class="btn-full primary" id="connectBtn">Connect</button>
+          </section>
+
+          <!-- Chat Section -->
+          <section class="chat-section">
+            <div class="chat-box" id="chatBox">
+              <div class="chat-message system">Connected to Network</div>
+            </div>
+            <div class="chat-input-group">
+              <input type="text" id="messageInput" class="chat-input" placeholder="Message..." maxlength="200">
+              <button class="btn-send" id="sendBtn">Send</button>
+            </div>
+          </section>
+        </main>
+
+        <!-- Bottom Menu (Samsung Galaxy Style) -->
+        <nav class="mobile-menu">
+          <button class="menu-item" id="homeMenuBtn" title="Home">
+            <span class="menu-icon">🏠</span>
+            <span class="menu-label">Home</span>
+          </button>
+          <button class="menu-item" id="settingsMenuBtn" title="Settings">
+            <span class="menu-icon">⚙️</span>
+            <span class="menu-label">Settings</span>
+          </button>
+          <button class="menu-item" id="filesMenuBtn" title="Files">
+            <span class="menu-icon">📁</span>
+            <span class="menu-label">Files</span>
+          </button>
+          <button class="menu-item" id="moreMenuBtn" title="More">
+            <span class="menu-icon">⋮</span>
+            <span class="menu-label">More</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Phone Bottom Bezel -->
+      <div class="phone-bottom-bezel"></div>
+    </div>
+  </div>
+
+  <!-- Modal Popups -->
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="btn-close" id="closeSettingsBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-item">
+          <label>🔒 Tor Protection</label>
+          <button id="torToggleBtn" class="toggle-btn">OFF</button>
+        </div>
+        <div class="setting-item">
+          <label>🔐 Encryption</label>
+          <button id="encryptionToggleBtn" class="toggle-btn">OFF</button>
+        </div>
+        <div class="setting-item">
+          <label>🎨 Theme</label>
+          <div class="theme-selector">
+            <button class="theme-option active" data-theme="dark">Dark</button>
+            <button class="theme-option" data-theme="light">Light</button>
+            <button class="theme-option" data-theme="matrix">Matrix</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Files Modal -->
+  <div id="filesModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>File Transfer</h2>
+        <button class="btn-close" id="closeFilesBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <button class="btn-full secondary" id="createFileBtn">➕ Create File</button>
+        <button class="btn-full secondary" id="receiveFileBtn">⬇️ Receive File</button>
+        <button class="btn-full secondary" id="shareFileBtn">📤 Share File</button>
+        <div id="filesList" class="files-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- More Options Modal -->
+  <div id="moreModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>More Options</h2>
+        <button class="btn-close" id="closeMoreBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <button class="btn-full secondary" id="aboutBtn">ℹ️ About App</button>
+        <button class="btn-full secondary" id="testConnectionBtn">🧪 Test Connection</button>
+        <button class="btn-full secondary" id="clearDataBtn">🗑️ Clear Data</button>
+        <button class="btn-full danger" id="exitBtn">❌ Exit</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app-mobile.js"></script>
+</body>
+</html>
