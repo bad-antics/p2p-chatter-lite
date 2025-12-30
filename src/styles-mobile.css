@@ -577,3 +577,230 @@ body.theme-light {
   font-size: 11px;
   color: var(--secondary);
 }
+
+/* ===== CLASSIC PHONE THEMES ===== */
+
+/* BLACKBERRY THEME */
+body.theme-blackberry {
+  --primary: #ff6600;
+  --secondary: #999;
+  --text: #fff;
+  --bg: #1a1a1a;
+  --border: #333;
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+}
+
+body.theme-blackberry .phone-frame {
+  background: #000;
+  border-radius: 20px;
+  padding: 8px;
+  box-shadow: inset 0 0 10px rgba(255, 102, 0, 0.2), 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+body.theme-blackberry .phone-bezel {
+  background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+  border-radius: 16px;
+}
+
+body.theme-blackberry .status-bar {
+  background: #000;
+  border-bottom: 2px solid #ff6600;
+}
+
+body.theme-blackberry .time {
+  color: #ff6600;
+  font-family: monospace;
+}
+
+body.theme-blackberry .chat-message {
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+
+body.theme-blackberry .btn-primary {
+  background: #ff6600;
+  color: #000;
+  font-weight: bold;
+}
+
+body.theme-blackberry .btn-primary:active {
+  background: #ff8833;
+}
+
+body.theme-blackberry .modal-content {
+  background: #1a1a1a;
+  border: 2px solid #ff6600;
+  border-radius: 8px;
+}
+
+/* T-MOBILE SIDEKICK 2 THEME */
+body.theme-sidekick {
+  --primary: #ff1493;
+  --secondary: #999;
+  --text: #000;
+  --bg: #e0e0e0;
+  --border: #bbb;
+  background: linear-gradient(135deg, #f5f5f5 0%, #d0d0d0 100%);
+}
+
+body.theme-sidekick .phone-frame {
+  width: 400px;
+  background: linear-gradient(145deg, #e8e8e8, #c0c0c0);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+body.theme-sidekick .phone-bezel {
+  background: linear-gradient(145deg, #f0f0f0, #d8d8d8);
+  border-radius: 4px;
+  border: 2px solid #999;
+}
+
+body.theme-sidekick .status-bar {
+  background: #ff1493;
+  color: white;
+  border-bottom: 2px solid #c0107a;
+}
+
+body.theme-sidekick .time {
+  color: white;
+  font-family: 'Arial Black', sans-serif;
+}
+
+body.theme-sidekick .chat-message {
+  background: #fff;
+  border: 1px solid #999;
+  border-radius: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.theme-sidekick .btn-primary {
+  background: #ff1493;
+  color: white;
+  border: 2px solid #c0107a;
+  border-radius: 0;
+  font-weight: bold;
+}
+
+body.theme-sidekick .btn-primary:active {
+  background: #ff4db3;
+}
+
+body.theme-sidekick .modal-content {
+  background: #e8e8e8;
+  border: 2px solid #ff1493;
+  border-radius: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-sidekick .mobile-menu {
+  background: #d0d0d0;
+  border-top: 2px solid #ff1493;
+}
+
+body.theme-sidekick .menu-item {
+  color: #000;
+  font-weight: bold;
+}
+
+body.theme-sidekick .menu-item.active {
+  background: #ff1493;
+  color: white;
+}
+
+/* IPOD CLASSIC THEME */
+body.theme-ipod {
+  --primary: #555;
+  --secondary: #999;
+  --text: #000;
+  --bg: #f5f5f5;
+  --border: #ccc;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+}
+
+body.theme-ipod .phone-frame {
+  width: 320px;
+  height: 480px;
+  background: linear-gradient(145deg, #f8f8f8, #e0e0e0);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 3px rgba(255, 255, 255, 0.8);
+  position: relative;
+}
+
+body.theme-ipod .phone-bezel {
+  background: #f5f5f5;
+  border-radius: 8px;
+  border: 1px solid #999;
+}
+
+body.theme-ipod .status-bar {
+  background: #333;
+  color: white;
+  border-bottom: 1px solid #000;
+}
+
+body.theme-ipod .time {
+  color: white;
+  font-family: 'Courier New', monospace;
+}
+
+body.theme-ipod .chat-message {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+body.theme-ipod .btn-primary {
+  background: #555;
+  color: white;
+  border: 1px solid #222;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+body.theme-ipod .btn-primary:active {
+  background: #777;
+}
+
+body.theme-ipod .modal-content {
+  background: #f5f5f5;
+  border: 2px solid #555;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-ipod .mobile-menu {
+  background: #333;
+  border-top: 1px solid #000;
+}
+
+body.theme-ipod .menu-item {
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+body.theme-ipod .menu-item.active {
+  background: #555;
+  color: white;
+}
+
+/* IPOD CLICK WHEEL EFFECT */
+body.theme-ipod::after {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 3px solid #555;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #666, #333);
+  display: none;
+}
