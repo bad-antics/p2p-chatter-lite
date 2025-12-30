@@ -271,7 +271,14 @@ See [LICENSE](LICENSE) for full text
 
 **bad-antics / antX** - Privacy advocate, open-source developer
 
-## 🗺️ Roadmap
+## 🏆 cr3dz
+
+Special recognition to:
+- **FairyRos3** - UI/UX design & user experience
+- **sleep** - Inspiration & security guidance
+- **no.login** - P2P architecture & decentralization principles
+
+## �🗺️ Roadmap
 
 - [ ] Linux/macOS support
 - [ ] Mobile apps (iOS/Android)

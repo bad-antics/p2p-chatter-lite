@@ -35,7 +35,8 @@
       "target": [
         "portable"
       ],
-      "sign": null
+      "sign": null,
+      "icon": "assets/icon.ico"
     }
   }
 }

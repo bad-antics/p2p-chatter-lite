@@ -77,6 +77,67 @@
   --border: #00ffff;
 }
 
+/* Theme: Retro CRT */
+:root.theme-retro-crt {
+  --primary: #00ff00;
+  --secondary: #00aa00;
+  --bg: #000000;
+  --surface: #0d1a0d;
+  --surface-light: #1a2d1a;
+  --text: #00ff00;
+  --text-secondary: #00aa00;
+  --border: #003300;
+  --crt-lines: repeating-linear-gradient(0deg, rgba(0, 255, 0, 0.03) 0px, rgba(0, 255, 0, 0.03) 1px, transparent 1px, transparent 2px);
+}
+
+/* Theme: Glitch Matrix */
+:root.theme-glitch {
+  --primary: #ff00ff;
+  --secondary: #00ffff;
+  --bg: #000000;
+  --surface: #1a0033;
+  --surface-light: #2d0066;
+  --text: #ff00ff;
+  --text-secondary: #00ffff;
+  --border: #ff0099;
+}
+
+/* Theme: Acid Green */
+:root.theme-acid {
+  --primary: #ccff00;
+  --secondary: #99ff00;
+  --bg: #0d0d00;
+  --surface: #1a1a00;
+  --surface-light: #262600;
+  --text: #ccff00;
+  --text-secondary: #99ff00;
+  --border: #99ff00;
+}
+
+/* Theme: Plasma Storm */
+:root.theme-plasma {
+  --primary: #ff0099;
+  --secondary: #ff6600;
+  --bg: #0d000d;
+  --surface: #2d001a;
+  --surface-light: #4d003d;
+  --text: #ff0099;
+  --text-secondary: #ff6600;
+  --border: #ff0099;
+}
+
+/* Theme: Darknet */
+:root.theme-darknet {
+  --primary: #33ff00;
+  --secondary: #ff6600;
+  --bg: #050505;
+  --surface: #0d0d0d;
+  --surface-light: #1a1a1a;
+  --text: #33ff00;
+  --text-secondary: #ff6600;
+  --border: #333333;
+}
+
 body {
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   background-color: var(--bg);
@@ -297,6 +358,39 @@ body {
   box-shadow: 0 0 20px var(--primary);
 }
 
+.action-btn.secondary {
+  border-color: var(--secondary);
+  color: var(--secondary);
+}
+
+.action-btn.secondary:hover {
+  background: var(--secondary);
+  color: var(--bg);
+  box-shadow: 0 0 20px var(--secondary);
+}
+
+.action-btn.danger {
+  border-color: #ff3333;
+  color: #ff3333;
+  background: rgba(255, 51, 51, 0.1);
+}
+
+.action-btn.danger:hover {
+  background: #ff3333;
+  color: var(--bg);
+  box-shadow: 0 0 20px #ff3333;
+  animation: pulse-danger 0.6s ease-in-out infinite;
+}
+
+@keyframes pulse-danger {
+  0%, 100% {
+    box-shadow: 0 0 20px #ff3333;
+  }
+  50% {
+    box-shadow: 0 0 40px #ff3333;
+  }
+}
+
 .feature-list {
   list-style: none;
   font-size: 12px;
@@ -408,6 +502,25 @@ body {
   justify-content: flex-end;
   border-left: none;
   border-right: 3px solid var(--secondary);
+}
+
+.message.test-message {
+  border-left: 3px solid #ffaa00;
+  background: rgba(255, 170, 0, 0.1);
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+  margin-right: 8px;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
 }
 
 .message-content {
@@ -967,13 +1080,134 @@ body {
   gap: 6px;
 }
 
-.username-input label, .peer-username-input label {
+.username-dropdown-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.username-dropdown-container label {
   font-size: 12px;
   color: var(--text-secondary);
   font-weight: bold;
 }
 
-.username-input input, .peer-username-input input {
+.username-selector {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.username-dropdown {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.username-dropdown:hover,
+.username-dropdown:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  outline: none;
+}
+
+.username-dropdown option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Network Monitor */
+.network-monitor {
+  margin-top: 12px;
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.network-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.monitor-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.monitor-toggle {
+  cursor: pointer;
+  transition: transform 0.3s;
+  font-size: 14px;
+}
+
+.monitor-toggle:hover {
+  transform: scale(1.1);
+}
+
+.network-panel {
+  padding: 10px 12px;
+  font-size: 11px;
+}
+
+.network-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.network-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.network-item .label {
+  color: var(--text-secondary);
+  font-weight: bold;
+}
+
+.network-item .value {
+  color: var(--primary);
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot.on {
+  background: #00ff00;
+  box-shadow: 0 0 8px #00ff00;
+}
+
+.status-dot.off {
+  background: #ff3333;
+  box-shadow: 0 0 8px #ff3333;
+}
+
+.process-list {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.peer-username-input input {
   padding: 8px 12px;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid var(--border);
@@ -987,4 +1221,111 @@ body {
   background: rgba(0, 0, 0, 0.7);
   color: #666;
   cursor: not-allowed;
+}
+/* File Transfer Styles */
+.menu-option-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  margin: 6px 0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.menu-option-btn:hover {
+  background: rgba(0, 255, 0, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+}
+
+.menu-option-btn:active {
+  background: rgba(0, 255, 0, 0.2);
+}
+
+/* File Creation Dialog */
+#fileCreationDialog textarea {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  resize: vertical;
+  margin: 8px 0;
+}
+
+#fileCreationDialog textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+  outline: none;
+}
+
+#fileCreationDialog label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  color: var(--text);
+  font-size: 12px;
+}
+
+#fileCreationDialog label span {
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+  font-weight: bold;
+}
+
+#fileCreationDialog input[type="text"],
+#fileCreationDialog input[type="password"],
+#fileCreationDialog input[type="number"] {
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+#fileCreationDialog input[type="text"]:focus,
+#fileCreationDialog input[type="password"]:focus,
+#fileCreationDialog input[type="number"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+  outline: none;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+#fileStatus {
+  background: rgba(0, 255, 0, 0.2);
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+#fileStatus strong {
+  color: #00ff00;
 }

@@ -1,0 +1,52 @@
+name: Build and Release P2P Chatter Lite
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Windows portable executable
+        run: npm run build-win
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2p-chatter-lite-dist
+          path: dist/**
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "P2P Chatter Lite Release ${{ github.run_number }}"
+          tag_name: "v${{ github.run_number }}"
+          files: dist/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Issue on Success
+        if: success()
+        run: |
+          gh issue create --title "Release ${{ github.run_number }} successful" --body "Automated build and release completed."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

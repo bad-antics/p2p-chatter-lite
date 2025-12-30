@@ -12,17 +12,8 @@ contextBridge.exposeInMainWorld('api', {
     return ipcRenderer.invoke('get-app-info');
   },
 
-  // Listen for shortcut creation result
-  onShortcutCreated: (callback) => {
-    ipcRenderer.on('shortcut-created', (event, success) => {
-      callback(success);
-    });
+  // Close the application window
+  closeWindow: () => {
+    return ipcRenderer.send('close-window');
   },
 
-  // Listen for about dialog
-  onShowAbout: (callback) => {
-    ipcRenderer.on('show-about', () => {
-      callback();
-    });
-  }
-});

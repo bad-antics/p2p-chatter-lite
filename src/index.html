@@ -29,9 +29,267 @@
           <button id="shortcutBtn" class="action-btn primary">
             📌 Create Desktop Shortcut
           </button>
-          <button id="startBtn" class="action-btn">
-            ▶️ Start Messaging
+          <button id="testBotBtn" class="action-btn secondary" title="Run connection test">
+            🤖 Test Settings
           </button>
+          <button id="nukeBtn" class="action-btn danger" title="Clear all data and close app">
+            ☢️ NUKE Everything
+          </button>
+          
+          <!-- File Transfer Menu -->
+          <div class="dropdown-container">
+            <button id="fileTransferBtn" class="dropdown-toggle">
+              📤 File Transfer ▼
+            </button>
+            <div id="fileTransferMenu" class="dropdown-menu" style="display: none;">
+              <div class="menu-section">
+                <h4>🔐 Secure File Transfer</h4>
+                <button id="createSecureFileBtn" class="menu-option-btn">
+                  ➕ Create Protected File
+                </button>
+                <button id="receiveFileBtn" class="menu-option-btn">
+                  ⬇️ Receive File
+                </button>
+                <button id="viewFilesBtn" class="menu-option-btn">
+                  📁 View Shared Files
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Crypto Transfer Menu -->
+          <div class="dropdown-container">
+            <button id="cryptoTransferBtn" class="dropdown-toggle">
+              💰 Crypto Transfer ▼
+            </button>
+            <div id="cryptoTransferMenu" class="dropdown-menu" style="display: none;">
+              <div class="menu-section">
+                <h4>💸 Cryptocurrency Transfer</h4>
+                <button id="createCryptoTransferBtn" class="menu-option-btn">
+                  💎 Create Transfer
+                </button>
+                <button id="viewCryptoTransactionsBtn" class="menu-option-btn">
+                  📊 View Transactions
+                </button>
+                <button id="cryptoSettingsBtn" class="menu-option-btn">
+                  ⚙️ Configure Currencies
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PGP Authentication Menu -->
+          <div class="dropdown-container">
+            <button id="pgpAuthBtn" class="dropdown-toggle">
+              🔑 PGP Auth ▼
+            </button>
+            <div id="pgpAuthMenu" class="dropdown-menu" style="display: none;">
+              <div class="menu-section">
+                <h4>🔐 PGP Authentication (Optional)</h4>
+                <button id="generatePgpKeysBtn" class="menu-option-btn">
+                  🔧 Generate Keys
+                </button>
+                <button id="viewPgpKeysBtn" class="menu-option-btn">
+                  👁️ View Keys
+                </button>
+                <button id="pgpSignMessageBtn" class="menu-option-btn">
+                  ✍️ Sign Message
+                </button>
+                <button id="pgpVerifyMessageBtn" class="menu-option-btn">
+                  ✅ Verify Signature
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- File Creation Dialog -->
+        <div id="fileCreationDialog" class="modal" style="display: none;">
+          <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <h2>Create Protected File</h2>
+            <p>Create a password-protected file to share with connected peers</p>
+            
+            <div class="settings-section">
+              <h3>File Details</h3>
+              <label>
+                <span>File Name:</span>
+                <input type="text" id="fileName" placeholder="e.g., document.txt" maxlength="50">
+              </label>
+              <label>
+                <span>File Content:</span>
+                <textarea id="fileContent" placeholder="Enter file content here..." rows="6"></textarea>
+              </label>
+              <label>
+                <span>Protection Password:</span>
+                <input type="password" id="filePassword" placeholder="Enter protection password" maxlength="32">
+              </label>
+              <label>
+                <span>Confirm Password:</span>
+                <input type="password" id="filePasswordConfirm" placeholder="Confirm password" maxlength="32">
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="fileEncryption" checked>
+                <span>Use AES-256 Encryption</span>
+              </label>
+            </div>
+            
+            <div class="settings-section">
+              <h3>Access Control</h3>
+              <label>
+                <span>Allowed Recipients:</span>
+                <input type="text" id="allowedRecipients" placeholder="Enter peer usernames (comma-separated)">
+              </label>
+              <label>
+                <span>Expiration (hours):</span>
+                <input type="number" id="fileExpiration" placeholder="0 = never expires" min="0" max="1000" value="0">
+              </label>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+              <button id="createFileBtn" class="action-btn primary" style="flex: 1;">
+                ✓ Create & Export File
+              </button>
+              <button id="cancelFileBtn" class="action-btn" style="flex: 1;">
+                ✕ Cancel
+              </button>
+            </div>
+            
+            <div id="fileStatus" style="margin-top: 15px; padding: 10px; border-radius: 4px; display: none;">
+              <div id="fileStatusText"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Crypto Transfer Dialog -->
+        <div id="cryptoTransferDialog" class="modal" style="display: none;">
+          <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <h2>💰 Create Crypto Transfer</h2>
+            <p>Send cryptocurrency to peer with optional PGP signature</p>
+            
+            <div class="settings-section">
+              <h3>Transfer Details</h3>
+              <label>
+                <span>Recipient (Peer Username):</span>
+                <input type="text" id="cryptoRecipient" placeholder="Enter peer's username" maxlength="20">
+              </label>
+              <label>
+                <span>Currency:</span>
+                <select id="cryptoCurrency">
+                  <option value="BTC">Bitcoin (BTC)</option>
+                  <option value="ETH">Ethereum (ETH)</option>
+                  <option value="XMR">Monero (XMR)</option>
+                  <option value="LTC">Litecoin (LTC)</option>
+                  <option value="USDT">USDT (Tether)</option>
+                  <option value="DOGE">Dogecoin (DOGE)</option>
+                  <option value="ZEC">Zcash (ZEC)</option>
+                </select>
+              </label>
+              <label>
+                <span>Amount:</span>
+                <input type="number" id="cryptoAmount" placeholder="Enter amount" min="0" step="0.00000001">
+              </label>
+              <label>
+                <span>Exchange Type:</span>
+                <select id="exchangeType">
+                  <option value="direct">Direct Transfer (P2P)</option>
+                  <option value="escrow">Escrow Protected</option>
+                  <option value="atomic">Atomic Swap</option>
+                  <option value="lightning">Lightning Network</option>
+                </select>
+              </label>
+              <label>
+                <span>Wallet Address (Optional):</span>
+                <input type="text" id="cryptoWalletAddress" placeholder="Destination wallet address">
+              </label>
+              <label>
+                <span>Transaction Password:</span>
+                <input type="password" id="cryptoPassword" placeholder="Confirm with password" maxlength="32">
+              </label>
+            </div>
+
+            <div class="settings-section">
+              <h3>PGP Signature (Optional)</h3>
+              <label class="checkbox-label">
+                <input type="checkbox" id="signWithPgp">
+                <span>Sign transaction with PGP (adds authentication)</span>
+              </label>
+              <div id="pgpSignatureSection" style="display: none; margin-top: 10px;">
+                <label>
+                  <span>PGP Private Key:</span>
+                  <textarea id="pgpPrivateKeyForSignature" placeholder="Paste your PGP private key" rows="4"></textarea>
+                </label>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+              <button id="sendCryptoBtn" class="action-btn primary" style="flex: 1;">
+                💳 Send Crypto
+              </button>
+              <button id="cancelCryptoBtn" class="action-btn" style="flex: 1;">
+                ✕ Cancel
+              </button>
+            </div>
+
+            <div id="cryptoStatus" style="margin-top: 15px; padding: 10px; border-radius: 4px; display: none;">
+              <div id="cryptoStatusText"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PGP Key Management Dialog -->
+        <div id="pgpKeyDialog" class="modal" style="display: none;">
+          <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <h2>🔑 PGP Key Management</h2>
+            <p>Generate, view, and manage PGP authentication keys (optional security enhancement)</p>
+            
+            <div class="settings-section">
+              <h3>Generate New Keys</h3>
+              <label>
+                <span>Key Identifier (e.g., name or email):</span>
+                <input type="text" id="pgpKeyId" placeholder="Your name or identifier" maxlength="50">
+              </label>
+              <label>
+                <span>Key Size:</span>
+                <select id="pgpKeySize">
+                  <option value="2048">2048-bit (Standard)</option>
+                  <option value="4096">4096-bit (High Security)</option>
+                </select>
+              </label>
+              <button id="generatePgpBtn" class="action-btn primary" style="width: 100%; margin-top: 10px;">
+                🔧 Generate Keys
+              </button>
+              <div id="pgpGenerationStatus" style="margin-top: 10px; display: none;"></div>
+            </div>
+
+            <div class="settings-section">
+              <h3>Current Keys</h3>
+              <div id="pgpKeysDisplay" style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; max-height: 200px; overflow-y: auto;">
+                <p style="color: #888;">No keys generated yet</p>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h3>Import Existing Key</h3>
+              <label>
+                <span>PGP Public Key:</span>
+                <textarea id="pgpPublicKeyImport" placeholder="Paste PGP public key" rows="6"></textarea>
+              </label>
+              <button id="importPgpKeyBtn" class="action-btn primary" style="width: 100%; margin-top: 10px;">
+                📥 Import Key
+              </button>
+            </div>
+
+            <div style="margin-top: 20px;">
+              <button id="closePgpDialogBtn" class="action-btn" style="width: 100%;">
+                Close
+              </button>
+            </div>
+
+            <div id="pgpDialogStatus" style="margin-top: 15px; padding: 10px; border-radius: 4px; display: none;"></div>
+          </div>
         </div>
 
         <div class="sidebar-section">
@@ -49,6 +307,11 @@
                 <button class="theme-option" data-theme="hacker-red">Hacker Red</button>
                 <button class="theme-option" data-theme="dark-web">Dark Web</button>
                 <button class="theme-option" data-theme="neon-void">Neon Void</button>
+                <button class="theme-option" data-theme="retro-crt">Retro CRT</button>
+                <button class="theme-option" data-theme="glitch">Glitch Matrix</button>
+                <button class="theme-option" data-theme="acid">Acid Green</button>
+                <button class="theme-option" data-theme="plasma">Plasma Storm</button>
+                <button class="theme-option" data-theme="darknet">Darknet</button>
               </div>
               <div class="menu-section">
                 <h4>💬 Chat Options</h4>
@@ -127,12 +390,45 @@
 
           <div class="connection-setup">
             <div class="username-input-group">
-              <div class="username-input">
+              <div class="username-dropdown-container">
                 <label>Your Username:</label>
-                <div class="username-controls">
-                  <input type="text" id="usernameInput" placeholder="Auto-generated username" maxlength="20" readonly>
+                <div class="username-selector">
+                  <select id="usernameDropdown" class="username-dropdown">
+                    <option value="">Loading usernames...</option>
+                  </select>
                   <button id="regenerateUsernameBtn" class="btn-icon" title="Generate new username">🔄</button>
                   <button id="copyUsernameBtn" class="btn-icon" title="Copy to clipboard">📋</button>
+                </div>
+              </div>
+              
+              <!-- Network Monitor Panel -->
+              <div class="network-monitor">
+                <div class="network-header">
+                  <span class="monitor-title">Network Status</span>
+                  <span class="monitor-toggle" id="toggleNetworkMonitor">📊</span>
+                </div>
+                <div class="network-panel" id="networkPanel" style="display: none;">
+                  <div class="network-info">
+                    <div class="network-item">
+                      <span class="label">Tor Status:</span>
+                      <span class="value" id="torStatusDisplay">
+                        <span class="status-dot off"></span> Disconnected
+                      </span>
+                    </div>
+                    <div class="network-item">
+                      <span class="label">Processes:</span>
+                      <span class="value" id="processCount">0</span>
+                    </div>
+                    <div class="network-item">
+                      <span class="label">Connection:</span>
+                      <span class="value" id="connectionStatus">
+                        <span class="status-dot offline"></span> Idle
+                      </span>
+                    </div>
+                  </div>
+                  <div class="process-list" id="processList" style="font-size: 10px; max-height: 150px; overflow-y: auto; margin-top: 10px; padding: 5px; background: rgba(0,0,0,0.3); border-radius: 3px;">
+                    <div style="color: #888;">No active processes</div>
+                  </div>
                 </div>
               </div>
               <div class="password-input">
@@ -205,6 +501,14 @@
           Privacy. Anonymity. Freedom.<br>
           <a href="https://github.com/bad-antics/p2p-chatter-lite" target="_blank">View on GitHub</a>
         </p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #444;">
+          <h4 style="margin: 0 0 10px 0;">🏆 cr3dz</h4>
+          <p style="margin: 8px 0; color: #aaa;"><strong>FairyRos3</strong> - UI/UX design & user experience</p>
+          <p style="margin: 8px 0; color: #aaa;"><strong>sleep</strong> - Inspiration & security guidance</p>
+          <p style="margin: 8px 0; color: #aaa;"><strong>no.login</strong> - P2P architecture & decentralization principles</p>
+          <p style="font-size: 11px; color: #666; margin-top: 15px;">Built with passion for privacy advocates</p>
+        </div>
       </div>
     </div>
 
@@ -262,6 +566,13 @@
           <p><strong>Version:</strong> <span id="settingsVersion">1.0.0</span></p>
           <p><strong>License:</strong> MIT</p>
           <p><strong>Author:</strong> antX/bad-antics</p>
+          <h4 style="margin-top: 15px;">🏆 cr3dz</h4>
+          <p>Special thanks to:</p>
+          <ul style="margin: 5px 0; padding-left: 20px;">
+            <li><strong>FairyRos3</strong> - UI/UX design & user experience</li>
+            <li><strong>sleep</strong> - Inspiration & security guidance</li>
+            <li><strong>no.login</strong> - P2P & decentralization insights</li>
+          </ul>
         </div>
       </div>
     </div>

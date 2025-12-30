@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2P Chatter Lite - Loading</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #1a0000 100%);
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+    }
+
+    .splash-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hacker-box {
+      width: 90%;
+      max-width: 800px;
+      height: 90%;
+      max-height: 600px;
+      border: 2px solid #00ff00;
+      box-shadow: 0 0 30px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.1);
+      background: rgba(0, 0, 0, 0.95);
+      padding: 30px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: glow 3s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% {
+        box-shadow: 0 0 30px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.1);
+      }
+      50% {
+        box-shadow: 0 0 50px #00ff00, inset 0 0 30px rgba(0, 255, 0, 0.2);
+      }
+    }
+
+    .hacker-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #00ff00;
+      padding-bottom: 15px;
+    }
+
+    .skull-icon {
+      font-size: 40px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        text-shadow: 0 0 10px #00ff00;
+        transform: scale(1);
+      }
+      50% {
+        text-shadow: 0 0 20px #00ff00;
+        transform: scale(1.1);
+      }
+    }
+
+    .hacker-title {
+      color: #00ff00;
+      font-size: 24px;
+      text-shadow: 0 0 10px #00ff00;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .terminal-content {
+      flex: 1;
+      overflow-y: auto;
+      color: #00ff00;
+      text-shadow: 0 0 5px #00ff00;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .terminal-line {
+      margin: 8px 0;
+      animation: typewriter 0.05s steps(1) forwards;
+    }
+
+    .command {
+      color: #ffff00;
+      text-shadow: 0 0 5px #ffff00;
+    }
+
+    .output {
+      color: #00ff00;
+      margin-left: 20px;
+      font-size: 13px;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      height: 18px;
+      background-color: #00ff00;
+      margin-left: 5px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 49%, 100% {
+        opacity: 1;
+      }
+      50%, 99% {
+        opacity: 0;
+      }
+    }
+
+    .scanlines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 0, 0.03),
+        rgba(0, 255, 0, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+    }
+
+    .loading-bar {
+      width: 100%;
+      height: 3px;
+      background: rgba(0, 255, 0, 0.2);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+
+    .loading-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #00ff00, #00aa00);
+      width: 0%;
+      animation: progress 3s ease-in-out forwards;
+      box-shadow: 0 0 10px #00ff00;
+    }
+
+    @keyframes progress {
+      0% { width: 0%; }
+      50% { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    .footer-text {
+      text-align: center;
+      color: #00aa00;
+      font-size: 12px;
+      text-shadow: 0 0 5px #00aa00;
+      letter-spacing: 1px;
+    }
+
+    /* Scrollbar styling */
+    .terminal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .terminal-content::-webkit-scrollbar-track {
+      background: rgba(0, 255, 0, 0.05);
+    }
+
+    .terminal-content::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 0, 0.3);
+      border-radius: 4px;
+    }
+
+    .terminal-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 255, 0, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-container">
+    <div class="hacker-box">
+      <div class="hacker-header">
+        <div class="skull-icon">☠️</div>
+        <div class="hacker-title">P2P CHATTER LITE v1.0.0</div>
+      </div>
+
+      <div class="terminal-content" id="terminalContent">
+        <div class="terminal-line"><span class="command">$</span> whoami</div>
+        <div class="terminal-line"><span class="output">P2P Chatter Lite // Privacy-First Messaging</span></div>
+        <div class="terminal-line" style="margin-top: 15px;"><span class="command">$</span> cat CREDITS.txt</div>
+        <div class="terminal-line" style="margin-top: 10px;"><span class="output">═══════════════════════════════════════</span></div>
+        <div class="terminal-line"><span class="output">cr3dz to:</span></div>
+        <div class="terminal-line"><span class="output">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span></div>
+        <div class="terminal-line"><span class="output">▸ antX ..................... Project Lead</span></div>
+        <div class="terminal-line"><span class="output">▸ Sleep .................... Security 🔐</span></div>
+        <div class="terminal-line"><span class="output">▸ no.login ................ Architecture 🏗️</span></div>
+        <div class="terminal-line"><span class="output">▸ FairyRos3 ............... UI/UX Design ✨</span></div>
+        <div class="terminal-line" style="margin-top: 10px;"><span class="output">═══════════════════════════════════════</span></div>
+        <div class="terminal-line" style="margin-top: 15px;"><span class="command">$</span> launching app<span class="cursor"></span></div>
+      </div>
+
+      <div class="loading-bar">
+        <div class="loading-progress"></div>
+      </div>
+
+      <div class="footer-text">
+        // ENCRYPTED • DECENTRALIZED • ANONYMOUS //
+      </div>
+    </div>
+    <div class="scanlines"></div>
+  </div>
+
+  <script>
+    // Auto-close splash after 4 seconds
+    setTimeout(() => {
+      window.close();
+    }, 4000);
+  </script>
+</body>
+</html>

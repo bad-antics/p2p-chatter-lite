@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Background -->
+  <rect width="256" height="256" fill="#000000"/>
+  
+  <!-- Skull -->
+  <g id="skull">
+    <!-- Main skull shape -->
+    <ellipse cx="128" cy="90" rx="55" ry="60" fill="#00ff00" stroke="#00aa00" stroke-width="2"/>
+    
+    <!-- Skull jaw -->
+    <rect x="85" y="140" width="86" height="35" rx="10" fill="#00ff00" stroke="#00aa00" stroke-width="2"/>
+    
+    <!-- Left eye socket -->
+    <circle cx="105" cy="75" r="15" fill="#000000" stroke="#00aa00" stroke-width="2"/>
+    <circle cx="105" cy="75" r="8" fill="#ff0000" opacity="0.8"/>
+    
+    <!-- Right eye socket -->
+    <circle cx="151" cy="75" r="15" fill="#000000" stroke="#00aa00" stroke-width="2"/>
+    <circle cx="151" cy="75" r="8" fill="#ff0000" opacity="0.8"/>
+    
+    <!-- Nose hole -->
+    <ellipse cx="128" cy="105" rx="8" ry="10" fill="#000000" stroke="#00aa00" stroke-width="1"/>
+    
+    <!-- Teeth -->
+    <line x1="95" y1="155" x2="161" y2="155" stroke="#00aa00" stroke-width="2"/>
+    <line x1="105" y1="155" x2="105" y2="165" stroke="#00aa00" stroke-width="1.5"/>
+    <line x1="120" y1="155" x2="120" y2="165" stroke="#00aa00" stroke-width="1.5"/>
+    <line x1="135" y1="155" x2="135" y2="165" stroke="#00aa00" stroke-width="1.5"/>
+    <line x1="150" y1="155" x2="150" y2="165" stroke="#00aa00" stroke-width="1.5"/>
+  </g>
+  
+  <!-- Crossbones -->
+  <g id="crossbones" transform="translate(128, 130)">
+    <!-- Left bone -->
+    <g transform="rotate(-35)">
+      <rect x="-60" y="-6" width="120" height="12" rx="6" fill="#00ff00" stroke="#00aa00" stroke-width="2"/>
+      <!-- Bone knobs -->
+      <circle cx="-60" cy="0" r="10" fill="#00ff00" stroke="#00aa00" stroke-width="2"/>
+      <circle cx="60" cy="0" r="10" fill="#00ff00" stroke="#00aa00" stroke-width="2"/>
+    </g>
+    
+    <!-- Right bone -->
+    <g transform="rotate(35)">
+      <rect x="-60" y="-6" width="120" height="12" rx="6" fill="#00ff00" stroke="#00aa00" stroke-width="2"/>
+      <!-- Bone knobs -->
+      <circle cx="-60" cy="0" r="10" fill="#00ff00" stroke="#00aa00" stroke-width="2"/>
+      <circle cx="60" cy="0" r="10" fill="#00ff00" stroke="#00aa00" stroke-width="2"/>
+    </g>
+    
+    <!-- Center circle -->
+    <circle cx="0" cy="0" r="18" fill="none" stroke="#00aa00" stroke-width="2"/>
+  </g>
+  
+  <!-- Glow effect -->
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Apply glow to skull -->
+  <ellipse cx="128" cy="90" rx="55" ry="60" fill="none" stroke="#00ff00" stroke-width="1" opacity="0.5" filter="url(#glow)"/>
+</svg>

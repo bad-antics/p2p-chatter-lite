@@ -7,7 +7,52 @@ const os = require('os');
 app.commandLine.appendSwitch('disable-gpu');
 
 let mainWindow;
+let splashWindow;
 let desktopShortcutCreated = false;
+
+// Create splash screen
+function createSplashWindow() {
+  splashWindow = new BrowserWindow({
+    width: 900,
+    height: 700,
+    center: true,
+    frame: false,
+    resizable: false,
+    alwaysOnTop: true,
+    show: true,
+    icon: path.join(__dirname, 'assets/icon.ico'),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true
+    }
+  });
+
+  const splashPath = path.join(__dirname, 'src/splash.html');
+  splashWindow.loadFile(splashPath).catch(err => {
+    console.error('Failed to load splash:', err);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.show();
+    }
+  });
+
+  // Close splash after 4 seconds and show main window
+  setTimeout(() => {
+    try {
+      if (splashWindow && !splashWindow.isDestroyed()) {
+        splashWindow.close();
+      }
+    } catch (e) {}
+    splashWindow = null;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.show();
+    }
+  }, 4000);
+
+  splashWindow.on('closed', () => {
+    splashWindow = null;
+  });
+}
 
 // Create main application window
 function createWindow() {
@@ -17,7 +62,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     show: false,
-    icon: path.join(__dirname, 'src/app.ico'),
+    icon: path.join(__dirname, 'assets/icon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -35,9 +80,9 @@ function createWindow() {
     console.error('Failed to load file:', err);
   });
 
-  // Show window when ready
+  // Show window when ready (splash will handle display timing)
   mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.show();
+    // Window will be shown by splash screen closing
   });
 
   // Create application menu
@@ -182,8 +227,22 @@ ipcMain.handle('get-app-info', async () => {
   };
 });
 
+ipcMain.on('close-window', () => {
+  if (mainWindow) {
+    mainWindow.close();
+  }
+  app.quit();
+});
+
 // App event handlers
-app.on('ready', createWindow);
+// Use modern async pattern for Electron 27+
+app.whenReady().then(() => {
+  createWindow();
+  createSplashWindow();
+}).catch(err => {
+  console.error('Failed to initialize app:', err);
+  app.quit();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -194,6 +253,7 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
+    createSplashWindow();
   }
 });
 
