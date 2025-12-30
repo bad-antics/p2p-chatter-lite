@@ -17,3 +17,8 @@ contextBridge.exposeInMainWorld('api', {
     return ipcRenderer.send('close-window');
   },
 
+  // Get pre-generated usernames from main process
+  getUsernames: () => {
+    return ipcRenderer.invoke('get-usernames');
+  }
+});

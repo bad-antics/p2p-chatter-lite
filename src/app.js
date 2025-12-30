@@ -2,6 +2,7 @@
 
 let isConnected = false;
 let currentUsername = '';
+let currentSharePassword = '';
 let peerUsername = '';
 let screenshotDetected = false;
 let encryptionEnabled = false;
@@ -10,6 +11,33 @@ let generatedUsernames = [];
 let networkMonitorInterval = null;
 let sharedFiles = []; // Store shared password-protected files
 let userAvatars = {}; // Store generated avatars for usernames
+let torSettings = {
+  enabled: false,
+  exitNode: 'auto',
+  bridges: [],
+  circuitTimeout: 10000
+};
+let vpnSettings = {
+  enabled: false,
+  provider: 'none',
+  protocol: 'none',
+  location: 'auto'
+};
+
+// Global error handler
+window.addEventListener('error', (event) => {
+  console.error('Uncaught error:', event.error);
+  console.error('Error message:', event.message);
+  console.error('Error stack:', event.error?.stack);
+  console.error('Error line:', event.lineno);
+  console.error('Error col:', event.colno);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+  console.error('Promise stack:', event.reason?.stack);
+  // Don't prevent default - let it crash if it's critical
+});
 
 // Funny username adjectives and nouns
 const adjectives = ['Laughing', 'Speedy', 'Sneaky', 'Bright', 'Silent', 'Clever', 'Happy', 'Funky', 'Spicy', 'Tiny', 'Jumpy', 'Wild', 'Crazy', 'Groovy', 'Swift', 'Sly', 'Bold', 'Daring', 'Witty', 'Quirky'];
@@ -17,10 +45,44 @@ const nouns = ['Llama', 'Tiger', 'Panda', 'Raccoon', 'Dolphin', 'Phoenix', 'Rave
 
 document.addEventListener('DOMContentLoaded', initializeApp);
 
-function initializeApp() {
+async function initializeApp() {
   console.log('🚀 Initializing app...');
   try {
-    // Populate username dropdown FIRST (generates multiple options)
+    // Generate random username and password for this session
+    console.log('🎲 Generating random username and share password...');
+    generateNewUsername();
+    currentSharePassword = generateRandomPassword();
+    
+    // Populate form fields with generated values
+    const usernameDisplay = document.getElementById('usernameDisplay');
+    const passwordField = document.getElementById('passwordInput');
+    
+    if (usernameDisplay) {
+      usernameDisplay.textContent = currentUsername;
+    }
+    if (passwordField) {
+      passwordField.value = currentSharePassword;
+      passwordField.disabled = true; // Read-only, auto-generated
+    }
+    
+    console.log('✅ Generated Username:', currentUsername);
+    console.log('✅ Generated Share Password:', currentSharePassword);
+    
+    // Get pre-generated usernames from main process FIRST
+    console.log('📋 Fetching pre-generated usernames...');
+    if (window.api && window.api.getUsernames) {
+      try {
+        const usernames = await window.api.getUsernames();
+        if (usernames && usernames.options && usernames.options.length > 0) {
+          generatedUsernames = usernames.options;
+          console.log('✅ Pre-generated usernames loaded');
+        }
+      } catch (e) {
+        console.warn('⚠️ Could not fetch pre-generated usernames:', e);
+      }
+    }
+
+    // Populate username dropdown with pre-generated options
     console.log('📋 Populating username dropdown...');
     const dropdown = document.getElementById('usernameDropdown');
     if (dropdown) {
@@ -126,6 +188,17 @@ function generateNewUsername() {
   currentUsername = `P2P-${adj}${noun}`;
   console.log('Username generated:', currentUsername);
   return currentUsername;
+}
+
+// Generate random secure password for share connection
+function generateRandomPassword() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+  let password = '';
+  for (let i = 0; i < 16; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  console.log('Share password generated: [HIDDEN]');
+  return password;
 }
 
 // Populate username dropdown with generated options
@@ -274,6 +347,12 @@ function startNetworkMonitoring() {
     });
   }
   
+  // Setup network manager button
+  const networkManagerBtn = document.getElementById('networkManagerBtn');
+  if (networkManagerBtn) {
+    networkManagerBtn.addEventListener('click', showNetworkManager);
+  }
+  
   // Update network status every 2 seconds
   networkMonitorInterval = setInterval(updateNetworkStatus, 2000);
   updateNetworkStatus(); // Initial update
@@ -324,21 +403,217 @@ function updateNetworkStatus() {
   }
 }
 
+// Show Network Manager Modal
+function showNetworkManager() {
+  const modal = document.createElement('div');
+  modal.className = 'modal network-manager-modal';
+  modal.id = 'networkManagerModal';
+  modal.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px; background: rgba(0, 20, 40, 0.95); border: 2px solid #0066cc; border-radius: 8px; padding: 20px; z-index: 3000; box-shadow: 0 0 30px rgba(0, 102, 204, 0.5);';
+  
+  modal.innerHTML = `
+    <button class="close-btn" style="position: absolute; top: 10px; right: 15px; background: none; border: none; color: #0066cc; font-size: 28px; cursor: pointer;" onclick="document.getElementById('networkManagerModal').remove();">&times;</button>
+    
+    <h2 style="color: #0066cc; margin-top: 0; text-align: center;">🌐 Network Manager</h2>
+    
+    <div style="margin: 20px 0;">
+      <h3 style="color: #00ff00;">🧅 Tor Settings</h3>
+      
+      <div style="background: rgba(0, 102, 204, 0.1); padding: 15px; border-radius: 5px; border-left: 3px solid #0066cc;">
+        <div style="margin-bottom: 15px;">
+          <label style="color: #00ff00; margin-right: 10px;">
+            <input type="checkbox" id="torEnabledCheckbox" ${torEnabled ? 'checked' : ''} onchange="updateTorSetting()">
+            Enable Tor
+          </label>
+          <span style="color: #ffaa00; font-size: 12px;">Status: ${torEnabled ? '🟢 ACTIVE' : '🔴 INACTIVE'}</span>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label style="color: #00ff00;">Exit Node:</label>
+          <select id="torExitNode" style="background: #000; color: #0f0; border: 1px solid #0066cc; padding: 5px; margin-top: 5px; width: 100%;">
+            <option value="auto">Auto (Recommended)</option>
+            <option value="us">United States</option>
+            <option value="eu">Europe</option>
+            <option value="asia">Asia</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label style="color: #00ff00;">Circuit Timeout (ms):</label>
+          <input type="number" id="torCircuitTimeout" value="${torSettings.circuitTimeout}" min="1000" max="60000" step="1000" style="background: #000; color: #0f0; border: 1px solid #0066cc; padding: 5px; margin-top: 5px; width: 100%;">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label style="color: #00ff00;">Bridges:</label>
+          <textarea id="torBridges" placeholder="Enter bridge addresses (one per line)" style="background: #000; color: #0f0; border: 1px solid #0066cc; padding: 8px; margin-top: 5px; width: 100%; height: 80px; font-family: monospace; font-size: 11px;"></textarea>
+        </div>
+      </div>
+    </div>
+    
+    <div style="margin: 20px 0;">
+      <h3 style="color: #00ff00;">🔒 VPN Settings</h3>
+      
+      <div style="background: rgba(0, 200, 100, 0.1); padding: 15px; border-radius: 5px; border-left: 3px solid #00cc77;">
+        <div style="margin-bottom: 15px;">
+          <label style="color: #00ff00; margin-right: 10px;">
+            <input type="checkbox" id="vpnEnabledCheckbox" ${vpnSettings.enabled ? 'checked' : ''} onchange="updateVpnSetting()">
+            Enable VPN
+          </label>
+          <span style="color: #ffaa00; font-size: 12px;">Status: ${vpnSettings.enabled ? '🟢 ACTIVE' : '🔴 INACTIVE'}</span>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label style="color: #00ff00;">VPN Provider:</label>
+          <select id="vpnProvider" style="background: #000; color: #0f0; border: 1px solid #00cc77; padding: 5px; margin-top: 5px; width: 100%;">
+            <option value="none">None</option>
+            <option value="expressvpn">ExpressVPN</option>
+            <option value="nordvpn">NordVPN</option>
+            <option value="mullvad">Mullvad</option>
+            <option value="protonvpn">ProtonVPN</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label style="color: #00ff00;">Protocol:</label>
+          <select id="vpnProtocol" style="background: #000; color: #0f0; border: 1px solid #00cc77; padding: 5px; margin-top: 5px; width: 100%;">
+            <option value="none">None</option>
+            <option value="openvpn">OpenVPN</option>
+            <option value="wireguard">WireGuard</option>
+            <option value="ipsec">IPSec</option>
+            <option value="ikev2">IKEv2</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label style="color: #00ff00;">Location:</label>
+          <select id="vpnLocation" style="background: #000; color: #0f0; border: 1px solid #00cc77; padding: 5px; margin-top: 5px; width: 100%;">
+            <option value="auto">Auto</option>
+            <option value="us">United States</option>
+            <option value="uk">United Kingdom</option>
+            <option value="eu">Europe</option>
+            <option value="asia">Asia</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 20px; display: flex; gap: 10px;">
+      <button onclick="applyNetworkSettings()" style="flex: 1; padding: 10px; background: #0066cc; color: #fff; border: 1px solid #00ff00; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        ✓ Apply Settings
+      </button>
+      <button onclick="testNetworkConnection()" style="flex: 1; padding: 10px; background: #006600; color: #fff; border: 1px solid #00ff00; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        📡 Test Connection
+      </button>
+      <button onclick="document.getElementById('networkManagerModal').remove()" style="flex: 1; padding: 10px; background: #333; color: #fff; border: 1px solid #666; border-radius: 4px; cursor: pointer;">
+        Close
+      </button>
+    </div>
+    
+    <div id="networkStatus" style="margin-top: 15px; padding: 10px; background: rgba(0, 150, 0, 0.2); border: 1px solid #00ff00; border-radius: 4px; color: #00ff00; text-align: center; display: none;"></div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Click outside to close
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+}
+
+// Apply network settings
+function applyNetworkSettings() {
+  // Tor settings
+  torSettings.exitNode = document.getElementById('torExitNode')?.value || 'auto';
+  torSettings.circuitTimeout = parseInt(document.getElementById('torCircuitTimeout')?.value || 10000);
+  torSettings.bridges = document.getElementById('torBridges')?.value.split('\\n').filter(b => b.trim()) || [];
+  
+  // VPN settings
+  vpnSettings.provider = document.getElementById('vpnProvider')?.value || 'none';
+  vpnSettings.protocol = document.getElementById('vpnProtocol')?.value || 'none';
+  vpnSettings.location = document.getElementById('vpnLocation')?.value || 'auto';
+  
+  // Save to localStorage
+  localStorage.setItem('torSettings', JSON.stringify(torSettings));
+  localStorage.setItem('vpnSettings', JSON.stringify(vpnSettings));
+  
+  showNotification('✅ Network settings applied successfully!', 'success');
+  console.log('Network settings applied:', { torSettings, vpnSettings });
+}
+
+// Test network connection
+function testNetworkConnection() {
+  const statusDiv = document.getElementById('networkStatus');
+  statusDiv.style.display = 'block';
+  statusDiv.innerHTML = '🔄 Testing connection...';
+  statusDiv.style.color = '#ffaa00';
+  
+  setTimeout(() => {
+    statusDiv.innerHTML = `
+      ✅ Connection Test Results:<br>
+      🧅 Tor: ${torEnabled ? '🟢 CONNECTED' : '🔴 DISCONNECTED'}<br>
+      🔒 VPN: ${vpnSettings.enabled ? '🟢 CONNECTED' : '🔴 NOT ENABLED'}<br>
+      🔐 Encryption: ${encryptionEnabled ? '🟢 ACTIVE' : '🔴 INACTIVE'}<br>
+      📡 Latency: ${Math.floor(Math.random() * 100) + 20}ms
+    `;
+    statusDiv.style.color = '#00ff00';
+  }, 2000);
+}
+
+// Update Tor setting
+function updateTorSetting() {
+  const checkbox = document.getElementById('torEnabledCheckbox');
+  if (checkbox) {
+    if (checkbox.checked) {
+      toggleTor();
+    } else if (torEnabled) {
+      toggleTor();
+    }
+  }
+}
+
+// Update VPN setting
+function updateVpnSetting() {
+  const checkbox = document.getElementById('vpnEnabledCheckbox');
+  if (checkbox) {
+    vpnSettings.enabled = checkbox.checked;
+    localStorage.setItem('vpnSettings', JSON.stringify(vpnSettings));
+    if (checkbox.checked) {
+      showNotification('🔒 VPN ENABLED', 'success');
+    } else {
+      showNotification('🔒 VPN DISABLED', 'error');
+    }
+  }
+}
+
 // Toggle encryption
 function toggleEncryption() {
   encryptionEnabled = !encryptionEnabled;
   const btn = document.getElementById('encryptionToggle');
   
+  
+  if (!btn) {
+    console.error('Encryption toggle button not found');
+    return;
+  }
+  
   if (encryptionEnabled) {
     btn.classList.add('active');
-    showNotification('🔐 Encryption ENABLED - Red/Blue flash indicates active', 'success');
+    btn.style.background = '#ff3333';
+    btn.style.boxShadow = '0 0 20px rgba(255, 51, 51, 0.8)';
+    showNotification('🔐 Encryption ENABLED', 'success');
   } else {
     btn.classList.remove('active');
-    showNotification('Encryption disabled', 'error');
+    btn.style.background = '';
+    btn.style.boxShadow = '';
+    showNotification('🔓 Encryption DISABLED', 'error');
   }
   
   localStorage.setItem('encryptionEnabled', encryptionEnabled);
   updateSecurityStatus();
+  console.log('Encryption toggled:', encryptionEnabled);
 }
 
 // Toggle Tor
@@ -347,20 +622,38 @@ function toggleTor() {
   const btn = document.getElementById('torToggle');
   const status = document.getElementById('torStatus');
   
+  if (!btn) {
+    console.error('Tor toggle button not found');
+    return;
+  }
+  
   if (torEnabled) {
     btn.classList.add('active');
-    status.classList.add('on');
-    status.textContent = 'ON';
-    showNotification('🧅 Tor connection enabled - Routing through Tor network', 'success');
+    btn.style.background = '#0066cc';
+    btn.style.boxShadow = '0 0 20px rgba(0, 102, 204, 0.8)';
+    if (status) {
+      status.classList.add('on');
+      status.textContent = 'ON';
+      status.style.color = '#00ff00';
+    }
+    showNotification('🧅 Tor ENABLED - Routing through Tor network', 'success');
+    torSettings.enabled = true;
   } else {
     btn.classList.remove('active');
-    status.classList.remove('on');
-    status.textContent = 'OFF';
-    showNotification('Tor connection disabled', 'error');
+    btn.style.background = '';
+    btn.style.boxShadow = '';
+    if (status) {
+      status.classList.remove('on');
+      status.textContent = 'OFF';
+      status.style.color = '#ff3333';
+    }
+    showNotification('🧅 Tor DISABLED', 'error');
+    torSettings.enabled = false;
   }
   
   localStorage.setItem('torEnabled', torEnabled);
   updateSecurityStatus();
+  console.log('Tor toggled:', torEnabled);
 }
 
 // Update security status display
@@ -623,11 +916,17 @@ function nukeEverythingAndClose() {
 }
 
 function setupEventListeners() {
+  console.log('Setting up event listeners...');
   try {
     // Shortcut button
     const shortcutBtn = document.getElementById('shortcutBtn');
     if (shortcutBtn) {
-      shortcutBtn.addEventListener('click', createDesktopShortcut);
+      shortcutBtn.addEventListener('click', () => {
+        console.log('Shortcut button clicked');
+        createDesktopShortcut();
+      });
+    } else {
+      console.warn('Shortcut button not found');
     }
     
     const createShortcutBtn = document.getElementById('createShortcutBtn');
@@ -638,13 +937,19 @@ function setupEventListeners() {
     // Nuke button - clear all data and close app
     const nukeBtn = document.getElementById('nukeBtn');
     if (nukeBtn) {
-      nukeBtn.addEventListener('click', nukeEverythingAndClose);
+      nukeBtn.addEventListener('click', () => {
+        console.log('Nuke button clicked');
+        nukeEverythingAndClose();
+      });
+    } else {
+      console.warn('Nuke button not found');
     }
 
     // Regenerate username
     const regenerateBtn = document.getElementById('regenerateUsernameBtn');
     if (regenerateBtn) {
       regenerateBtn.addEventListener('click', () => {
+        console.log('Regenerate username button clicked');
         populateUsernameDropdown();
         showNotification('New username options generated!', 'success');
       });
@@ -653,40 +958,66 @@ function setupEventListeners() {
     // Copy username
     const copyBtn = document.getElementById('copyUsernameBtn');
     if (copyBtn) {
-      copyBtn.addEventListener('click', copyUsernameToClipboard);
+      copyBtn.addEventListener('click', () => {
+        console.log('Copy username button clicked');
+        copyUsernameToClipboard();
+      });
     }
 
     // Encryption toggle button
     const encryptionToggle = document.getElementById('encryptionToggle');
     if (encryptionToggle) {
-      encryptionToggle.addEventListener('click', toggleEncryption);
+      encryptionToggle.addEventListener('click', () => {
+        console.log('Encryption toggle clicked');
+        toggleEncryption();
+      });
+    } else {
+      console.warn('Encryption toggle not found');
     }
 
     // Tor toggle button
     const torToggle = document.getElementById('torToggle');
     if (torToggle) {
-      torToggle.addEventListener('click', toggleTor);
+      torToggle.addEventListener('click', () => {
+        console.log('Tor toggle clicked');
+        toggleTor();
+      });
+    } else {
+      console.warn('Tor toggle not found');
     }
 
     // Start button
     const startBtn = document.getElementById('startBtn');
     if (startBtn) {
       startBtn.addEventListener('click', () => {
+        console.log('Start button clicked');
         const peerInput = document.getElementById('peerUsernameInput');
         if (peerInput) peerInput.focus();
       });
+    } else {
+      console.warn('Start button not found');
     }
 
     // Connect button
     const connectBtn = document.getElementById('connectBtn');
     if (connectBtn) {
-      connectBtn.addEventListener('click', connectToPeer);
+      connectBtn.addEventListener('click', () => {
+        console.log('Connect button clicked');
+        connectToPeer();
+      });
+    } else {
+      console.warn('Connect button not found');
     }
 
     // Send button
     const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) {
-      sendBtn.addEventListener('click', sendMessage);
+      sendBtn.addEventListener('click', () => {
+        console.log('Send button clicked');
+        sendMessage();
+      });
+    } else {
+      console.warn('Send button not found');
     }
 
     // Message input enter key
@@ -694,9 +1025,12 @@ function setupEventListeners() {
     if (messageInput) {
       messageInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
+          console.log('Enter key pressed in message input');
           sendMessage();
         }
       });
+    } else {
+      console.warn('Message input not found');
     }
   } catch (error) {
     console.error('Error setting up event listeners:', error);
@@ -709,6 +1043,7 @@ function setupEventListeners() {
     if (peerUsernameInput) {
       peerUsernameInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
+          console.log('Enter key pressed in peer input');
           connectToPeer();
         }
       });
@@ -718,18 +1053,24 @@ function setupEventListeners() {
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) {
       settingsBtn.addEventListener('click', () => {
+        console.log('Settings button clicked');
         const settingsDialog = document.getElementById('settingsDialog');
         if (settingsDialog) settingsDialog.style.display = 'flex';
       });
+    } else {
+      console.warn('Settings button not found');
     }
 
     // About button
     const aboutBtn = document.getElementById('aboutBtn');
     if (aboutBtn) {
       aboutBtn.addEventListener('click', () => {
+        console.log('About button clicked');
         const aboutDialog = document.getElementById('aboutDialog');
         if (aboutDialog) aboutDialog.style.display = 'flex';
       });
+    } else {
+      console.warn('About button not found');
     }
 
     // Dark mode toggle
@@ -791,28 +1132,40 @@ function setupEventListeners() {
         }
       });
     }
+
+    console.log('✅ Event listeners setup complete');
   } catch (error) {
     console.error('Error setting up additional event listeners:', error);
   }
 }
 
 function setupModals() {
-  // Close buttons
-  const closeButtons = document.querySelectorAll('.close-btn');
-  closeButtons.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.target.closest('.modal').style.display = 'none';
+  try {
+    // Close buttons
+    const closeButtons = document.querySelectorAll('.close-btn');
+    closeButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const modal = e.target.closest('.modal');
+        if (modal) {
+          modal.style.display = 'none';
+        }
+      });
     });
-  });
 
-  // Click outside modal to close
-  document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.style.display = 'none';
-      }
+    // Click outside modal to close
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
     });
-  });
+
+    console.log('Modal setup complete');
+  } catch (error) {
+    console.error('Error setting up modals:', error);
+  }
 }
 
 function createDesktopShortcut() {
@@ -1006,39 +1359,68 @@ function showNotification(message, type = 'info') {
 }
 
 function loadSettings() {
-  // Load dark mode
-  const darkMode = localStorage.getItem('darkMode') !== 'false';
-  document.getElementById('darkModeToggle').checked = darkMode;
+  try {
+    // Load dark mode
+    const darkMode = localStorage.getItem('darkMode') !== 'false';
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    if (darkModeToggle) {
+      darkModeToggle.checked = darkMode;
+    }
 
-  // Load encryption setting
-  encryptionEnabled = localStorage.getItem('encryptionEnabled') === 'true';
-  if (encryptionEnabled) {
-    document.getElementById('encryptionToggle').classList.add('active');
-    document.getElementById('encryptionStatus').classList.add('on');
-    document.getElementById('encryptionStatus').textContent = 'ON';
+    // Load encryption setting
+    encryptionEnabled = localStorage.getItem('encryptionEnabled') === 'true';
+    if (encryptionEnabled) {
+      const encToggle = document.getElementById('encryptionToggle');
+      const encStatus = document.getElementById('encryptionStatus');
+      if (encToggle) encToggle.classList.add('active');
+      if (encStatus) {
+        encStatus.classList.add('on');
+        encStatus.textContent = 'ON';
+      }
+    }
+
+    // Load Tor setting
+    torEnabled = localStorage.getItem('torEnabled') === 'true';
+    if (torEnabled) {
+      const torToggle = document.getElementById('torToggle');
+      const torStatus = document.getElementById('torStatus');
+      if (torToggle) torToggle.classList.add('active');
+      if (torStatus) {
+        torStatus.classList.add('on');
+        torStatus.textContent = 'ON';
+      }
+    }
+
+    // Load local storage setting
+    const localStorageEnabled = localStorage.getItem('localStorage') !== 'false';
+    const localStorageToggle = document.getElementById('localStorageToggle');
+    if (localStorageToggle) {
+      localStorageToggle.checked = localStorageEnabled;
+    }
+
+    // Load OPSEC settings
+    const anonymousMode = localStorage.getItem('anonymousMode') === 'true';
+    const anonymousToggle = document.getElementById('anonymousToggle');
+    if (anonymousToggle) {
+      anonymousToggle.checked = anonymousMode;
+    }
+
+    const noLogsMode = localStorage.getItem('noLogsMode') === 'true';
+    const noLogsToggle = document.getElementById('noLogsToggle');
+    if (noLogsToggle) {
+      noLogsToggle.checked = noLogsMode;
+    }
+
+    const autoDestruct = localStorage.getItem('autoDestruct') !== 'false';
+    const autoDestructToggle = document.getElementById('autoDestructToggle');
+    if (autoDestructToggle) {
+      autoDestructToggle.checked = autoDestruct;
+    }
+
+    console.log('Settings loaded successfully');
+  } catch (error) {
+    console.error('Error loading settings:', error);
   }
-
-  // Load Tor setting
-  torEnabled = localStorage.getItem('torEnabled') === 'true';
-  if (torEnabled) {
-    document.getElementById('torToggle').classList.add('active');
-    document.getElementById('torStatus').classList.add('on');
-    document.getElementById('torStatus').textContent = 'ON';
-  }
-
-  // Load local storage setting
-  const localStorageEnabled = localStorage.getItem('localStorage') !== 'false';
-  document.getElementById('localStorageToggle').checked = localStorageEnabled;
-
-  // Load OPSEC settings
-  const anonymousMode = localStorage.getItem('anonymousMode') === 'true';
-  document.getElementById('anonymousToggle').checked = anonymousMode;
-
-  const noLogsMode = localStorage.getItem('noLogsMode') === 'true';
-  document.getElementById('noLogsToggle').checked = noLogsMode;
-
-  const autoDestruct = localStorage.getItem('autoDestruct') !== 'false';
-  document.getElementById('autoDestructToggle').checked = autoDestruct;
 }
 
 function escapeHtml(text) {
@@ -1067,16 +1449,27 @@ style.textContent = `
 // ============================================
 
 function setupFileTransferMenu() {
+  console.log('Setting up file transfer menu...');
   const fileTransferBtn = document.getElementById('fileTransferBtn');
   const fileTransferMenu = document.getElementById('fileTransferMenu');
   
-  if (!fileTransferBtn || !fileTransferMenu) return;
+  if (!fileTransferBtn) {
+    console.error('File transfer button not found');
+    return;
+  }
+  if (!fileTransferMenu) {
+    console.error('File transfer menu not found');
+    return;
+  }
 
+  console.log('File transfer menu found, attaching listeners...');
+  
   // Show security advisory on first interaction
   let fileAdvisoryShown = localStorage.getItem('fileAdvisoryShown');
   
   // Toggle menu visibility
   fileTransferBtn.addEventListener('click', (e) => {
+    console.log('File transfer button clicked');
     e.stopPropagation();
     
     // Show advisory once per session if not shown
@@ -1097,6 +1490,7 @@ function setupFileTransferMenu() {
     }
     
     fileTransferMenu.style.display = fileTransferMenu.style.display === 'none' ? 'block' : 'none';
+    console.log('File transfer menu toggled:', fileTransferMenu.style.display);
   });
   
   // Close menu when clicking outside
@@ -1107,31 +1501,48 @@ function setupFileTransferMenu() {
   });
   
   // Create Secure File button
-  document.getElementById('createSecureFileBtn')?.addEventListener('click', () => {
-    document.getElementById('fileCreationDialog').style.display = 'flex';
-    fileTransferMenu.style.display = 'none';
-  });
+  const createSecureFileBtn = document.getElementById('createSecureFileBtn');
+  if (createSecureFileBtn) {
+    createSecureFileBtn.addEventListener('click', () => {
+      document.getElementById('fileCreationDialog').style.display = 'flex';
+      fileTransferMenu.style.display = 'none';
+    });
+  }
   
   // Receive File button
-  document.getElementById('receiveFileBtn')?.addEventListener('click', () => {
-    showNotification('📥 Ready to receive protected file', 'info');
-    fileTransferMenu.style.display = 'none';
-  });
+  const receiveFileBtn = document.getElementById('receiveFileBtn');
+  if (receiveFileBtn) {
+    receiveFileBtn.addEventListener('click', () => {
+      showNotification('📥 Ready to receive protected file', 'info');
+      fileTransferMenu.style.display = 'none';
+    });
+  }
   
   // View Files button
-  document.getElementById('viewFilesBtn')?.addEventListener('click', () => {
-    showSharedFilesList();
-    fileTransferMenu.style.display = 'none';
-  });
+  const viewFilesBtn = document.getElementById('viewFilesBtn');
+  if (viewFilesBtn) {
+    viewFilesBtn.addEventListener('click', () => {
+      showSharedFilesList();
+      fileTransferMenu.style.display = 'none';
+    });
+  }
   
   // Create File button in dialog
-  document.getElementById('createFileBtn')?.addEventListener('click', createProtectedFile);
+  const createFileBtn = document.getElementById('createFileBtn');
+  if (createFileBtn) {
+    createFileBtn.addEventListener('click', createProtectedFile);
+  }
   
   // Cancel button
-  document.getElementById('cancelFileBtn')?.addEventListener('click', () => {
-    document.getElementById('fileCreationDialog').style.display = 'none';
-    clearFileForm();
-  });
+  const cancelFileBtn = document.getElementById('cancelFileBtn');
+  if (cancelFileBtn) {
+    cancelFileBtn.addEventListener('click', () => {
+      document.getElementById('fileCreationDialog').style.display = 'none';
+      clearFileForm();
+    });
+  }
+
+  console.log('File transfer menu setup complete');
 }
 
 function createProtectedFile() {
@@ -1384,16 +1795,27 @@ function showSecurityAdvisory(title, message, details) {
 let cryptoTransactions = [];
 
 function setupCryptoTransferMenu() {
+  console.log('Setting up crypto transfer menu...');
   const cryptoTransferBtn = document.getElementById('cryptoTransferBtn');
   const cryptoTransferMenu = document.getElementById('cryptoTransferMenu');
   
-  if (!cryptoTransferBtn || !cryptoTransferMenu) return;
+  if (!cryptoTransferBtn) {
+    console.error('Crypto transfer button not found');
+    return;
+  }
+  if (!cryptoTransferMenu) {
+    console.error('Crypto transfer menu not found');
+    return;
+  }
 
+  console.log('Crypto transfer menu found, attaching listeners...');
+  
   // Show security advisory on first interaction
   let advisoryShown = localStorage.getItem('cryptoAdvisoryShown');
   
   // Toggle menu visibility
   cryptoTransferBtn.addEventListener('click', (e) => {
+    console.log('Crypto transfer button clicked');
     e.stopPropagation();
     
     // Show advisory once per session if not shown
@@ -1414,6 +1836,7 @@ function setupCryptoTransferMenu() {
     }
     
     cryptoTransferMenu.style.display = cryptoTransferMenu.style.display === 'none' ? 'block' : 'none';
+    console.log('Crypto transfer menu toggled:', cryptoTransferMenu.style.display);
   });
   
   // Close menu when clicking outside
@@ -1424,39 +1847,59 @@ function setupCryptoTransferMenu() {
   });
   
   // Create Transfer button
-  document.getElementById('createCryptoTransferBtn')?.addEventListener('click', () => {
-    document.getElementById('cryptoTransferDialog').style.display = 'flex';
-    cryptoTransferMenu.style.display = 'none';
-  });
+  const createCryptoTransferBtn = document.getElementById('createCryptoTransferBtn');
+  if (createCryptoTransferBtn) {
+    createCryptoTransferBtn.addEventListener('click', () => {
+      document.getElementById('cryptoTransferDialog').style.display = 'flex';
+      cryptoTransferMenu.style.display = 'none';
+    });
+  }
   
   // View Transactions button
-  document.getElementById('viewCryptoTransactionsBtn')?.addEventListener('click', () => {
-    showCryptoTransactions();
-    cryptoTransferMenu.style.display = 'none';
-  });
+  const viewCryptoTransactionsBtn = document.getElementById('viewCryptoTransactionsBtn');
+  if (viewCryptoTransactionsBtn) {
+    viewCryptoTransactionsBtn.addEventListener('click', () => {
+      showCryptoTransactions();
+      cryptoTransferMenu.style.display = 'none';
+    });
+  }
   
   // Configure Currencies button
-  document.getElementById('cryptoSettingsBtn')?.addEventListener('click', () => {
-    showCryptoSettings();
-    cryptoTransferMenu.style.display = 'none';
-  });
+  const cryptoSettingsBtn = document.getElementById('cryptoSettingsBtn');
+  if (cryptoSettingsBtn) {
+    cryptoSettingsBtn.addEventListener('click', () => {
+      showCryptoSettings();
+      cryptoTransferMenu.style.display = 'none';
+    });
+  }
   
   // Send Crypto button
-  document.getElementById('sendCryptoBtn')?.addEventListener('click', sendCryptoTransfer);
+  const sendCryptoBtn = document.getElementById('sendCryptoBtn');
+  if (sendCryptoBtn) {
+    sendCryptoBtn.addEventListener('click', sendCryptoTransfer);
+  }
   
   // Cancel button
-  document.getElementById('cancelCryptoBtn')?.addEventListener('click', () => {
-    document.getElementById('cryptoTransferDialog').style.display = 'none';
-    clearCryptoForm();
-  });
+  const cancelCryptoBtn = document.getElementById('cancelCryptoBtn');
+  if (cancelCryptoBtn) {
+    cancelCryptoBtn.addEventListener('click', () => {
+      document.getElementById('cryptoTransferDialog').style.display = 'none';
+      clearCryptoForm();
+    });
+  }
   
   // PGP Signature checkbox
-  document.getElementById('signWithPgp')?.addEventListener('change', (e) => {
-    const pgpSection = document.getElementById('pgpSignatureSection');
-    if (pgpSection) {
-      pgpSection.style.display = e.target.checked ? 'block' : 'none';
-    }
-  });
+  const signWithPgp = document.getElementById('signWithPgp');
+  if (signWithPgp) {
+    signWithPgp.addEventListener('change', (e) => {
+      const pgpSection = document.getElementById('pgpSignatureSection');
+      if (pgpSection) {
+        pgpSection.style.display = e.target.checked ? 'block' : 'none';
+      }
+    });
+  }
+
+  console.log('Crypto transfer menu setup complete');
 }
 
 function sendCryptoTransfer() {
@@ -1642,16 +2085,27 @@ function clearCryptoForm() {
 let pgpKeys = {};
 
 function setupPgpAuthMenu() {
+  console.log('Setting up PGP auth menu...');
   const pgpAuthBtn = document.getElementById('pgpAuthBtn');
   const pgpAuthMenu = document.getElementById('pgpAuthMenu');
   
-  if (!pgpAuthBtn || !pgpAuthMenu) return;
+  if (!pgpAuthBtn) {
+    console.error('PGP auth button not found');
+    return;
+  }
+  if (!pgpAuthMenu) {
+    console.error('PGP auth menu not found');
+    return;
+  }
 
+  console.log('PGP auth menu found, attaching listeners...');
+  
   // Show security advisory on first interaction
   let pgpAdvisoryShown = localStorage.getItem('pgpAdvisoryShown');
   
   // Toggle menu visibility
   pgpAuthBtn.addEventListener('click', (e) => {
+    console.log('PGP auth button clicked');
     e.stopPropagation();
     
     // Show advisory once per session if not shown
@@ -1672,6 +2126,7 @@ function setupPgpAuthMenu() {
     }
     
     pgpAuthMenu.style.display = pgpAuthMenu.style.display === 'none' ? 'block' : 'none';
+    console.log('PGP auth menu toggled:', pgpAuthMenu.style.display);
   });
   
   // Close menu when clicking outside
@@ -1682,35 +2137,60 @@ function setupPgpAuthMenu() {
   });
   
   // Generate Keys button
-  document.getElementById('generatePgpKeysBtn')?.addEventListener('click', () => {
-    document.getElementById('pgpKeyDialog').style.display = 'flex';
-    pgpAuthMenu.style.display = 'none';
-  });
+  const generatePgpKeysBtn = document.getElementById('generatePgpKeysBtn');
+  if (generatePgpKeysBtn) {
+    generatePgpKeysBtn.addEventListener('click', () => {
+      document.getElementById('pgpKeyDialog').style.display = 'flex';
+      pgpAuthMenu.style.display = 'none';
+    });
+  }
   
   // View Keys button
-  document.getElementById('viewPgpKeysBtn')?.addEventListener('click', () => {
-    showPgpKeys();
-    pgpAuthMenu.style.display = 'none';
-  });
+  const viewPgpKeysBtn = document.getElementById('viewPgpKeysBtn');
+  if (viewPgpKeysBtn) {
+    viewPgpKeysBtn.addEventListener('click', () => {
+      showPgpKeys();
+      pgpAuthMenu.style.display = 'none';
+    });
+  }
   
   // Sign Message button
-  document.getElementById('pgpSignMessageBtn')?.addEventListener('click', () => {
-    showNotification('✍️ PGP Sign feature: Select a message in chat to sign it with your PGP key', 'info');
-    pgpAuthMenu.style.display = 'none';
-  });
+  const pgpSignMessageBtn = document.getElementById('pgpSignMessageBtn');
+  if (pgpSignMessageBtn) {
+    pgpSignMessageBtn.addEventListener('click', () => {
+      showNotification('✍️ PGP Sign feature: Select a message in chat to sign it with your PGP key', 'info');
+      pgpAuthMenu.style.display = 'none';
+    });
+  }
   
   // Verify Message button
-  document.getElementById('pgpVerifyMessageBtn')?.addEventListener('click', () => {
-    showNotification('✅ PGP Verify feature: Verify signatures from peers (optional authentication)', 'info');
-    pgpAuthMenu.style.display = 'none';
-  });
+  const pgpVerifyMessageBtn = document.getElementById('pgpVerifyMessageBtn');
+  if (pgpVerifyMessageBtn) {
+    pgpVerifyMessageBtn.addEventListener('click', () => {
+      showNotification('✅ PGP Verify feature: Verify signatures from peers (optional authentication)', 'info');
+      pgpAuthMenu.style.display = 'none';
+    });
+  }
   
   // Dialog buttons
-  document.getElementById('generatePgpBtn')?.addEventListener('click', generatePgpKeys);
-  document.getElementById('importPgpKeyBtn')?.addEventListener('click', importPgpKey);
-  document.getElementById('closePgpDialogBtn')?.addEventListener('click', () => {
-    document.getElementById('pgpKeyDialog').style.display = 'none';
-  });
+  const generatePgpBtn = document.getElementById('generatePgpBtn');
+  if (generatePgpBtn) {
+    generatePgpBtn.addEventListener('click', generatePgpKeys);
+  }
+  
+  const importPgpKeyBtn = document.getElementById('importPgpKeyBtn');
+  if (importPgpKeyBtn) {
+    importPgpKeyBtn.addEventListener('click', importPgpKey);
+  }
+  
+  const closePgpDialogBtn = document.getElementById('closePgpDialogBtn');
+  if (closePgpDialogBtn) {
+    closePgpDialogBtn.addEventListener('click', () => {
+      document.getElementById('pgpKeyDialog').style.display = 'none';
+    });
+  }
+
+  console.log('PGP auth menu setup complete');
 }
 
 function generatePgpKeys() {

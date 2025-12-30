@@ -9,9 +9,31 @@ app.commandLine.appendSwitch('disable-gpu');
 let mainWindow;
 let splashWindow;
 let desktopShortcutCreated = false;
+let generatedUsername = null;
+let generatedUsernames = [];
+
+// Adjectives and nouns for username generation
+const adjectives = ['Laughing', 'Speedy', 'Sneaky', 'Bright', 'Silent', 'Clever', 'Happy', 'Funky', 'Spicy', 'Tiny', 'Jumpy', 'Wild', 'Crazy', 'Groovy', 'Swift', 'Sly', 'Bold', 'Daring', 'Witty', 'Quirky'];
+const nouns = ['Llama', 'Tiger', 'Panda', 'Raccoon', 'Dolphin', 'Phoenix', 'Raven', 'Owl', 'Fox', 'Wolf', 'Badger', 'Otter', 'Eagle', 'Hawk', 'Crypto', 'Ghost', 'Phantom', 'Shadow', 'Ninja', 'Wizard'];
+
+// Generate username in main process BEFORE splash screen closes
+function generateUsernames() {
+  generatedUsernames = [];
+  for (let i = 0; i < 5; i++) {
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+    const num = Math.floor(Math.random() * 1000);
+    const username = `P2P-${adj}${noun}${num}`;
+    generatedUsernames.push(username);
+  }
+  generatedUsername = generatedUsernames[0];
+  console.log('Usernames generated in main process:', generatedUsername);
+  return { username: generatedUsername, options: generatedUsernames };
+}
 
 // Create splash screen
 function createSplashWindow() {
+  console.log('Creating splash window...');
   splashWindow = new BrowserWindow({
     width: 900,
     height: 700,
@@ -29,6 +51,7 @@ function createSplashWindow() {
   });
 
   const splashPath = path.join(__dirname, 'src/splash.html');
+  console.log('Loading splash from:', splashPath);
   splashWindow.loadFile(splashPath).catch(err => {
     console.error('Failed to load splash:', err);
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -39,23 +62,27 @@ function createSplashWindow() {
   // Close splash after 4 seconds and show main window
   setTimeout(() => {
     try {
+      console.log('Closing splash window after 4 seconds...');
       if (splashWindow && !splashWindow.isDestroyed()) {
         splashWindow.close();
       }
     } catch (e) {}
     splashWindow = null;
     if (mainWindow && !mainWindow.isDestroyed()) {
+      console.log('Showing main window...');
       mainWindow.show();
     }
   }, 4000);
 
   splashWindow.on('closed', () => {
+    console.log('Splash window closed');
     splashWindow = null;
   });
 }
 
 // Create main application window
 function createWindow() {
+  console.log('Creating main window...');
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
@@ -73,7 +100,7 @@ function createWindow() {
   });
 
   const indexPath = path.join(__dirname, 'src/index.html');
-  console.log('Loading:', indexPath);
+  console.log('Loading index from:', indexPath);
   console.log('File exists:', fs.existsSync(indexPath));
   
   mainWindow.loadFile(indexPath).catch(err => {
@@ -82,7 +109,14 @@ function createWindow() {
 
   // Show window when ready (splash will handle display timing)
   mainWindow.webContents.on('did-finish-load', () => {
+    console.log('Main window loaded');
     // Window will be shown by splash screen closing
+  });
+
+  // Handle uncaught exceptions in the renderer process
+  mainWindow.webContents.on('crashed', () => {
+    console.error('Renderer process crashed');
+    mainWindow = null;
   });
 
   // Create application menu
@@ -90,10 +124,12 @@ function createWindow() {
 
   // Open developer tools in dev mode
   if (process.argv.includes('--dev')) {
+    console.log('Opening DevTools...');
     mainWindow.webContents.openDevTools();
   }
 
   mainWindow.on('closed', () => {
+    console.log('Main window closed');
     mainWindow = null;
   });
 }
@@ -227,6 +263,13 @@ ipcMain.handle('get-app-info', async () => {
   };
 });
 
+ipcMain.handle('get-usernames', async () => {
+  return {
+    username: generatedUsername,
+    options: generatedUsernames
+  };
+});
+
 ipcMain.on('close-window', () => {
   if (mainWindow) {
     mainWindow.close();
@@ -237,6 +280,7 @@ ipcMain.on('close-window', () => {
 // App event handlers
 // Use modern async pattern for Electron 27+
 app.whenReady().then(() => {
+  generateUsernames(); // Generate usernames BEFORE creating windows
   createWindow();
   createSplashWindow();
 }).catch(err => {
