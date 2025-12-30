@@ -249,7 +249,7 @@ function showMore() {
 }
 
 function showAbout() {
-  alert('P2P Chatter Lite v1.1.0\n\nSecure private messaging\nNo servers • No tracking\n© 2025');
+  alert('P2P Chatter Lite v1.1.0\n\nSecure private messaging\nNo servers • No tracking\n\n🎨 Created by: antX\n© 2025');
 }
 
 function testConnection() {
