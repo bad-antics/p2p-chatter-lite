@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2P Chatter Lite - Privacy-Focused Messaging</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1>P2P Chatter Lite 🔐</h1>
+        <p class="tagline">Lightweight • Secure • Decentralized</p>
+      </div>
+      <div class="header-controls">
+        <button id="settingsBtn" class="header-btn" title="Settings">⚙️</button>
+        <button id="aboutBtn" class="header-btn" title="About">ℹ️</button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h3>Quick Setup</h3>
+          <button id="shortcutBtn" class="action-btn primary">
+            📌 Create Desktop Shortcut
+          </button>
+          <button id="startBtn" class="action-btn">
+            ▶️ Start Messaging
+          </button>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Settings & Themes</h3>
+          <div class="dropdown-container">
+            <button id="themeMenuBtn" class="dropdown-toggle">
+              🎨 Themes & Options ▼
+            </button>
+            <div id="themeMenu" class="dropdown-menu" style="display: none;">
+              <div class="menu-section">
+                <h4>🎨 Themes</h4>
+                <button class="theme-option" data-theme="matrix">Matrix Green</button>
+                <button class="theme-option" data-theme="cyberpunk">Cyberpunk</button>
+                <button class="theme-option" data-theme="terminal">Terminal Amber</button>
+                <button class="theme-option" data-theme="hacker-red">Hacker Red</button>
+                <button class="theme-option" data-theme="dark-web">Dark Web</button>
+                <button class="theme-option" data-theme="neon-void">Neon Void</button>
+              </div>
+              <div class="menu-section">
+                <h4>💬 Chat Options</h4>
+                <label class="menu-option">
+                  <input type="checkbox" id="readReceipts"> Message read receipts
+                </label>
+                <label class="menu-option">
+                  <input type="checkbox" id="typingIndicator"> Show typing status
+                </label>
+                <label class="menu-option">
+                  <input type="checkbox" id="messageReactions"> Allow reactions (😀👍)
+                </label>
+                <label class="menu-option">
+                  <input type="checkbox" id="pinMessages"> Pin important messages
+                </label>
+                <label class="menu-option">
+                  <input type="checkbox" id="soundNotifications"> Sound notifications
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Status</h3>
+          <div id="status" class="status-box">
+            <span class="status-dot offline"></span>
+            <span>Not connected</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Chat Area -->
+      <section class="chat-container">
+        <div class="chat-header">
+          <h2 id="chatTitle">Welcome to P2P Chatter Lite</h2>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="welcome-message">
+            <h3>Welcome! 👋</h3>
+            <p>P2P Chatter Lite is a lightweight, privacy-focused messaging application.</p>
+            <ul>
+              <li><strong>Fast:</strong> Starts in under 2 seconds</li>
+              <li><strong>Secure:</strong> Military-grade AES-256-GCM encryption</li>
+              <li><strong>Simple:</strong> Clean, intuitive interface</li>
+              <li><strong>Private:</strong> Messages stored locally only</li>
+              <li><strong>Decentralized:</strong> Peer-to-peer communication</li>
+            </ul>
+            <h4>Getting Started:</h4>
+            <ol>
+              <li>Click "Create Desktop Shortcut" for easy access</li>
+              <li>Share your username with a peer</li>
+              <li>Enter their username to connect</li>
+              <li>Start encrypted messaging</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <!-- OPSEC Status Bar -->
+          <div class="opsec-status-bar">
+            <div class="opsec-indicator">
+              <span class="opsec-label">Encryption:</span>
+              <span id="encryptionStatus" class="status-indicator">OFF</span>
+            </div>
+            <div class="opsec-indicator">
+              <span class="opsec-label">Tor:</span>
+              <span id="torStatus" class="status-indicator">OFF</span>
+            </div>
+            <div class="opsec-indicator">
+              <span class="opsec-label">Security:</span>
+              <span id="securityLevel" class="status-indicator">⚠️ LOW</span>
+            </div>
+          </div>
+
+          <div class="connection-setup">
+            <div class="username-input-group">
+              <div class="username-input">
+                <label>Your Username:</label>
+                <div class="username-controls">
+                  <input type="text" id="usernameInput" placeholder="Auto-generated username" maxlength="20" readonly>
+                  <button id="regenerateUsernameBtn" class="btn-icon" title="Generate new username">🔄</button>
+                  <button id="copyUsernameBtn" class="btn-icon" title="Copy to clipboard">📋</button>
+                </div>
+              </div>
+              <div class="password-input">
+                <label>Connection Password:</label>
+                <input type="password" id="passwordInput" placeholder="Share with peer outside app" maxlength="32">
+              </div>
+            </div>
+            <div class="peer-username-input">
+              <label>Peer Username:</label>
+              <input type="text" id="peerUsernameInput" placeholder="Enter peer's username" maxlength="20" disabled>
+            </div>
+            <div class="security-controls">
+              <button id="encryptionToggle" class="btn-encrypt-flash" title="Toggle encryption">🔐 ENCRYPT</button>
+              <button id="torToggle" class="btn-tor" title="Toggle Tor">🧅 TOR</button>
+              <button id="connectBtn" class="btn-small">Connect</button>
+            </div>
+          </div>
+          <div class="message-input">
+            <input type="text" id="messageInput" placeholder="Type a message..." disabled>
+            <button id="sendBtn" class="btn-small" disabled>Send</button>
+          </div>
+        </div>
+        
+        <!-- Screenshot Alert -->
+        <div id="screenshotAlert" class="screenshot-alert" style="display: none;">
+          <span class="alert-icon">📸</span>
+          <span class="alert-text">Screenshot detected! Your messages may have been captured.</span>
+        </div>
+      </section>
+    </main>
+
+    <!-- About Dialog -->
+    <div id="aboutDialog" class="modal" style="display: none;">
+      <div class="modal-content">
+        <button class="close-btn">&times;</button>
+        <h2>About P2P Chatter Lite</h2>
+        <p><strong>Version:</strong> <span id="appVersion">1.0.0</span></p>
+        <p><strong>Description:</strong> A lightweight, privacy-focused peer-to-peer messaging application with end-to-end encryption.</p>
+        
+        <h3>Features</h3>
+        <ul>
+          <li>🔐 AES-256-GCM end-to-end encryption</li>
+          <li>🔗 Peer-to-peer messaging</li>
+          <li>💨 Lightweight design (~50MB install)</li>
+          <li>⚡ Fast startup (< 2 seconds)</li>
+          <li>📱 Simple, intuitive interface</li>
+          <li>🖥️ Desktop integration with shortcuts</li>
+          <li>🔓 Open source (MIT License)</li>
+        </ul>
+
+        <h3>Technology</h3>
+        <ul>
+          <li><strong>Framework:</strong> Electron</li>
+          <li><strong>Encryption:</strong> AES-256-GCM</li>
+          <li><strong>License:</strong> MIT</li>
+          <li><strong>Platform:</strong> Windows, macOS, Linux</li>
+        </ul>
+
+        <h3>Quick Start</h3>
+        <ol>
+          <li>Create a desktop shortcut (see sidebar)</li>
+          <li>Enter your username</li>
+          <li>Share username with peer</li>
+          <li>Connect to peer's username</li>
+          <li>Start encrypted messaging!</li>
+        </ol>
+
+        <p style="margin-top: 20px; color: #888; font-size: 12px;">
+          Made with ❤️ by antX/bad-antics<br>
+          Privacy. Anonymity. Freedom.<br>
+          <a href="https://github.com/bad-antics/p2p-chatter-lite" target="_blank">View on GitHub</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Settings Dialog -->
+    <div id="settingsDialog" class="modal" style="display: none;">
+      <div class="modal-content">
+        <button class="close-btn">&times;</button>
+        <h2>Settings</h2>
+
+        <div class="settings-section">
+          <h3>Desktop Shortcut</h3>
+          <p>Create a shortcut on your desktop for quick access</p>
+          <button id="createShortcutBtn" class="action-btn primary">
+            📌 Create Desktop Shortcut
+          </button>
+          <div id="shortcutStatus" style="margin-top: 10px; display: none;" class="status-message">
+            ✅ Desktop shortcut created successfully!
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Appearance</h3>
+          <label>
+            <input type="checkbox" id="darkModeToggle" checked>
+            Dark mode
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>Privacy</h3>
+          <label>
+            <input type="checkbox" id="localStorageToggle" checked>
+            Store messages locally
+          </label>
+          <label>
+            <input type="checkbox" id="autoDestructToggle" checked>
+            Auto-destruct messages after 1 hour
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>OPSEC</h3>
+          <label>
+            <input type="checkbox" id="anonymousToggle">
+            Anonymous mode (hide username from logs)
+          </label>
+          <label>
+            <input type="checkbox" id="noLogsToggle">
+            No message logs (ephemeral only)
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>About</h3>
+          <p><strong>Version:</strong> <span id="settingsVersion">1.0.0</span></p>
+          <p><strong>License:</strong> MIT</p>
+          <p><strong>Author:</strong> antX/bad-antics</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

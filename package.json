@@ -1,0 +1,41 @@
+{
+  "name": "p2p-chatter-lite",
+  "version": "1.0.0",
+  "description": "Lightweight P2P Chatter - Privacy-focused messaging with graphical installer",
+  "main": "main.js",
+  "author": "antX/bad-antics",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build-win": "electron-builder --win portable --publish never",
+    "build-installer": "electron-builder --win nsis --publish never",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^23.6.0"
+  },
+  "build": {
+    "appId": "com.bad-antics.p2p-chatter-lite",
+    "productName": "P2P Chatter Lite",
+    "files": [
+      "main.js",
+      "src/**/*",
+      "assets/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "sign": null
+    }
+  }
+}
